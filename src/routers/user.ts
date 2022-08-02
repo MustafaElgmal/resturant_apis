@@ -40,6 +40,15 @@ router.post('/login',async(req,res)=>{
     }
 
 })
+router.get('/',async(req,res)=>{
+    try{
+        const users=await User.find()
+        res.send({users})
+
+    }catch(e){
+        res.status(500).send({error:'Server is down!'})
+    }
+})
 
 router.get('/:id',async(req,res)=>{
     const {id}=req.params

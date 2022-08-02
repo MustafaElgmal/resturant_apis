@@ -8,6 +8,7 @@ import { connectionDB } from "./dp/conection"
 import userRouter from './routers/user'
 import categoryRouter from './routers/category'
 import itemRouter from './routers/item'
+import orderRouter from './routers/order'
 
 
 const app=express()
@@ -20,6 +21,7 @@ app.use(urlencoded({extended:true}))
 app.use('/users',userRouter)
 app.use('/categories',categoryRouter)
 app.use('/items',itemRouter)
+app.use('/orders',orderRouter)
 
 
 const port=process.env.PORT||5000

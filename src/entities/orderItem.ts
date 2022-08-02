@@ -8,12 +8,7 @@ export class OrderItem extends BaseEntity {
     @PrimaryGeneratedColumn()
     id:number
     @Column()
-    quantity:number
-    @CreateDateColumn({type:'timestamptz'})
-    createdAt:Date
-    @UpdateDateColumn({type:'timestamptz',onUpdate:'CURRENT_TIMESTAMPTZ(6)'})
-    updatedAt:Date
-
+    Qty:number
     @ManyToOne(()=>Order,(order)=>order.orderItems,{nullable:false,onDelete:'CASCADE',onUpdate:'CASCADE'})
     order:Order
 

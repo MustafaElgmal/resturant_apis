@@ -1,4 +1,4 @@
-import { categoryItem, userType } from "./types";
+import {itemType, orderType, userType } from "./types";
 import validator from "validator";
 import { User } from "./entities/user";
 import bcrypt from "bcrypt";
@@ -75,7 +75,7 @@ export const categoryValidation = async (cate: { name: string }) => {
   return { message: "" };
 };
 
-export const itemValidation = async (item: categoryItem) => {
+export const itemValidation = async (item:itemType) => {
   const { name, description, price, popular,imgUrl } = item;
   if (!name) {
     return { message: "ItemName is required!" };
@@ -97,3 +97,24 @@ export const itemValidation = async (item: categoryItem) => {
   }
   return { message: "" };
 };
+
+export const orderVaildation=(order:orderType)=>{
+  const {userId,orderPhone,orderCity,orderAddress,items}=order
+  if(!userId){
+    return {message:'UserId is required!'}
+  }
+  if(!orderPhone){
+    return {message:'orderPhone is required!'}
+  }
+  if(!orderCity){
+    return {message:'orderCity is required!'}
+  }
+  if(!orderAddress){
+    return {message:'orderAddress is required!'}
+  }
+  if(items.length===0){
+    return {message:'Items is required!'}
+  }
+  return {message:''}
+
+}
