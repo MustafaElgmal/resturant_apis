@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Order } from "./order";
 
 
 @Entity()
@@ -19,5 +20,7 @@ export class User extends BaseEntity{
     imgUrl:string
     @Column({nullable:true})
     dateOfBirth:Date
+    @OneToMany(()=>Order,(order)=>order.user)
+    orders:Order[]
 
 }

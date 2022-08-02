@@ -1,5 +1,4 @@
 
-
 export interface userType{
     id:number
     firstName:string
@@ -11,3 +10,12 @@ export interface userType{
     dateOfBirth:Date
 
 }
+
+export interface categoryItem{
+    name:string,
+    description:string,
+    price:number,
+    popular:boolean
+    imgUrl:string
+}
+

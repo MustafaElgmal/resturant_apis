@@ -1,7 +1,8 @@
-import { userType } from "./types";
+import { categoryItem, userType } from "./types";
 import validator from "validator";
 import { User } from "./entities/user";
-import bcrypt from 'bcrypt'
+import bcrypt from "bcrypt";
+import { Category } from "./entities/category";
 
 export const userValidation = async (user: userType) => {
   const { firstName, lastName, email, password, type } = user;
@@ -40,26 +41,59 @@ export const userValidation = async (user: userType) => {
   ) {
     return { message: "Type should be admin or user or employee!" };
   }
-  return {message:''}
+  return { message: "" };
 };
 
-export const loginValidation=async(user:userType)=>{
-const {email,password}=user
-if (!email) {
+export const loginValidation = async (user: userType) => {
+  const { email, password } = user;
+  if (!email) {
     return { message: "Email is required!" };
   }
-  const userFind= await User.findOneBy({ email });
+  const userFind = await User.findOneBy({ email });
   if (!userFind) {
     return { message: "Email is not vaild!" };
   }
   if (!password) {
     return { message: "Password is required!" };
   }
-  const vaild=await bcrypt.compare(password,userFind.password)
-  if(!vaild){
+  const vaild = await bcrypt.compare(password, userFind.password);
+  if (!vaild) {
     return { message: "Password is not vaild!" };
-
   }
-  return {message:''}
+  return { message: "" };
+};
 
-}
+export const categoryValidation = async (cate: { name: string }) => {
+  const { name } = cate;
+  if (!name) {
+    return { message: "CategoryName is required!" };
+  }
+  const category = await Category.findOneBy({ name });
+  if (category) {
+    return { message: "CategoryName is already exists!" };
+  }
+  return { message: "" };
+};
+
+export const itemValidation = async (item: categoryItem) => {
+  const { name, description, price, popular,imgUrl } = item;
+  if (!name) {
+    return { message: "ItemName is required!" };
+  }
+  if (!description) {
+    return { message: "Description is required!" };
+  }
+  if (!price) {
+    return { message: "Price is required!" };
+  }
+  if (popular===undefined) {
+    return { message: "Popular is required!" };
+  }
+  if (popular !== true && popular !== false) {
+    return { message: "Popular should be bool!" };
+  }
+  if (!imgUrl) {
+    return { message: "Image is required!" };
+  }
+  return { message: "" };
+};
