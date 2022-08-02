@@ -7,6 +7,16 @@ import { User } from "./user";
 export class Order extends BaseEntity{
     @PrimaryGeneratedColumn()
     id:number
+    @Column()
+    firstName:string
+    @Column()
+    lastName:string
+    @Column()
+    mobile:string
+    @Column()
+    city:string
+    @Column()
+    address:string
     @CreateDateColumn({type:'timestamptz'})
     createdAt:Date
     @UpdateDateColumn({type:'timestamptz',onUpdate:'CURRENT_TIMESTAMPTZ(6)'})
