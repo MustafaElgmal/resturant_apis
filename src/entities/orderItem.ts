@@ -11,7 +11,6 @@ export class OrderItem extends BaseEntity {
     Qty:number
     @ManyToOne(()=>Order,(order)=>order.orderItems,{nullable:false,onDelete:'CASCADE',onUpdate:'CASCADE'})
     order:Order
-
     @ManyToOne(()=>Item,(item)=>item.orderItems)
     item:Item
 }

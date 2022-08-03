@@ -3,35 +3,29 @@ import { Item } from "../entities/item";
 import { Order } from "../entities/order";
 import { OrderItem } from "../entities/orderItem";
 import { User } from "../entities/user";
-import { orderVaildation } from "../functions";
+import { createOrderItems, orderVaildation } from "../functions";
 import { itemType, orderItemType } from "../types";
 const router = Router();
 
 router.post("/", async (req, res) => {
-  const errors = orderVaildation(req.body);
+  const errors = await orderVaildation(req.body);
   if (errors.message !== "") {
     return res.status(400).send(errors);
   }
   try {
-    const { userId, orderPhone, orderCity, orderAddress, items } = req.body;
+    const { userId, mobile,city, address, items } = req.body;
     const user = await User.findOneBy({ id: userId });
     if (!user) {
       return res.status(404).send({ message: "user is not found!" });
     }
-    const order = Order.create({ user, orderPhone, orderCity, orderAddress });
+    const order = Order.create({ user, mobile,city, address });
     await order.save();
-    items.forEach(async (item: orderItemType) => {
-      const itemFind = await Item.findOne({ where: { id: item.itemId } });
-      if (!itemFind) {
-        return res.status(404).send({ message: "Item is not found!" });
-      }
-      const orderItem = OrderItem.create({
-        Qty: item.Qty,
-        order,
-        item: itemFind,
-      });
-      await orderItem.save();
-    });
+
+    const error=await createOrderItems(items,order)
+    if(error.message!==''){
+      return res.status(404).send(error.message)
+    }
+   
     res.status(201).send({ message: "order is created!" });
   } catch (e) {
     res.status(500).send({ error: "Server is down!" });
@@ -41,7 +35,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const orders = await Order.find({
-      relations: { user: true, orderItems: true },
+      relations: { user: true, orderItems:{item:true}},
     });
     res.send({ orders });
   } catch (e) {
@@ -57,7 +51,7 @@ router.get("/:id", async (req, res) => {
   try {
     const order = await Order.findOne({
       where: { id: +id },
-      relations: { user: true, orderItems: true },
+      relations: { user: true, orderItems: {item:true} },
     });
     if (!order) {
       return res.status(404).send({ message: "Order is not found!" });

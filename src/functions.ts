@@ -1,8 +1,10 @@
-import {itemType, orderType, userType } from "./types";
+import {itemType, orderItemType, orderType, userType } from "./types";
 import validator from "validator";
 import { User } from "./entities/user";
 import bcrypt from "bcrypt";
 import { Category } from "./entities/category";
+import { Item } from "./entities/item";
+import {OrderItem} from './entities/orderItem'
 
 export const userValidation = async (user: userType) => {
   const { firstName, lastName, email, password, type } = user;
@@ -28,7 +30,7 @@ export const userValidation = async (user: userType) => {
   if (!validator.isStrongPassword(password)) {
     return {
       message:
-        "password should be strong {minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1}!",
+        "password should be strong {minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1}",
     };
   }
   if (!type) {
@@ -76,7 +78,7 @@ export const categoryValidation = async (cate: { name: string }) => {
 };
 
 export const itemValidation = async (item:itemType) => {
-  const { name, description, price, popular,imgUrl } = item;
+  const { name, description, price, popular } = item;
   if (!name) {
     return { message: "ItemName is required!" };
   }
@@ -92,29 +94,43 @@ export const itemValidation = async (item:itemType) => {
   if (popular !== true && popular !== false) {
     return { message: "Popular should be bool!" };
   }
-  if (!imgUrl) {
-    return { message: "Image is required!" };
-  }
   return { message: "" };
 };
-
-export const orderVaildation=(order:orderType)=>{
-  const {userId,orderPhone,orderCity,orderAddress,items}=order
+export const orderVaildation=async(order:orderType)=>{
+  const {userId,mobile,city,address,items}=order
   if(!userId){
     return {message:'UserId is required!'}
   }
-  if(!orderPhone){
-    return {message:'orderPhone is required!'}
+  if(!mobile){
+    return {message:'mobile is required!'}
   }
-  if(!orderCity){
-    return {message:'orderCity is required!'}
+  if(!city){
+    return {message:'city is required!'}
   }
-  if(!orderAddress){
-    return {message:'orderAddress is required!'}
+  if(!address){
+    return {message:'address is required!'}
   }
   if(items.length===0){
     return {message:'Items is required!'}
   }
+  return {message:''}
+
+}
+
+export const createOrderItems=async(items:orderItemType[],order:any)=>{
+
+  items.forEach(async (item: orderItemType) => {
+    const itemFind = await Item.findOne({ where: { id: item.itemId } });
+    if (!itemFind) {
+      return {messgae:'Item not found!'}
+    }
+    const orderItem = OrderItem.create({
+      Qty: item.Qty,
+      order,
+      item: itemFind,
+    });
+    await orderItem.save();
+  });
   return {message:''}
 
 }

@@ -8,11 +8,11 @@ export class Order extends BaseEntity{
     @PrimaryGeneratedColumn()
     id:number
     @Column()
-    orderPhone:string
+    mobile:string
     @Column()
-    orderCity:string
+    city:string
     @Column()
-    orderAddress:string
+    address:string
     @Column({default:false})
     isCompleted:boolean
     @CreateDateColumn({type:'timestamptz'})
@@ -23,5 +23,4 @@ export class Order extends BaseEntity{
     user:User
     @OneToMany(()=>OrderItem,(orderItem)=>orderItem.order)
     orderItems:OrderItem[]
-
 }

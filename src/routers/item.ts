@@ -26,7 +26,7 @@ router.post("/:id", async (req, res) => {
       price,
       popular,
       imgUrl,
-      categoryId:cate.id
+      category:cate
     });
     await item.save();
     res.status(201).send({ item});

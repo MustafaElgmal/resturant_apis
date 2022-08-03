@@ -22,6 +22,7 @@ export const connectionDB=async()=>{
         })
 
     }catch(e){
+        console.log(e)
         console.log(`DB connection not vaild!`)
     }
 }

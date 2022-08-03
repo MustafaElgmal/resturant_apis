@@ -6,6 +6,7 @@ import { Item } from "./item";
 export class Category extends BaseEntity{
     @PrimaryGeneratedColumn()
     id:number
+    
     @Column({unique:true})
     name:string
 
