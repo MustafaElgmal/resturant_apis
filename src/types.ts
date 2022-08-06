@@ -22,10 +22,13 @@ export interface orderItemType{
 }
 
 export interface orderType{
-    userId:number,
+    userId?:number,
+    user:userType,
     mobile:string,
     city:string,
-    address:string
-    items:orderItemType[]
+    address:string,
+    orderNo:string
+    items?:itemType[]
+    isCompleted:boolean
 }
 

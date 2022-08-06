@@ -3,30 +3,33 @@ import { Item } from "../entities/item";
 import { Order } from "../entities/order";
 import { OrderItem } from "../entities/orderItem";
 import { User } from "../entities/user";
-import { createOrderItems, orderVaildation } from "../functions";
+import { createOrderItems, generationCode, getLengthOforders, orderVaildation } from "../functions";
 import { itemType, orderItemType } from "../types";
 const router = Router();
 
 router.post("/", async (req, res) => {
-  const errors = await orderVaildation(req.body);
+  let errors = await orderVaildation(req.body);
   if (errors.message !== "") {
     return res.status(400).send(errors);
   }
   try {
-    const { userId, mobile,city, address, items } = req.body;
+    const { userId, mobile,city, address, items,isCompleted } = req.body;
     const user = await User.findOneBy({ id: userId });
     if (!user) {
       return res.status(404).send({ message: "user is not found!" });
     }
-    const order = Order.create({ user, mobile,city, address });
+    const orderNo=await generationCode()
+    const order = Order.create({ user, mobile,city, address,orderNo,isCompleted});
     await order.save();
-
-    const error=await createOrderItems(items,order)
-    if(error.message!==''){
-      return res.status(404).send(error.message)
+    errors=await createOrderItems(items,order)
+    console.log(errors)
+    if (errors.message !== "") {
+      await Order.delete({id:order.id})
+      return res.status(400).send(errors);
     }
    
-    res.status(201).send({ message: "order is created!" });
+    
+    res.status(201).send({order});
   } catch (e) {
     res.status(500).send({ error: "Server is down!" });
   }
@@ -37,7 +40,8 @@ router.get("/", async (req, res) => {
     const orders = await Order.find({
       relations: { user: true, orderItems:{item:true}},
     });
-    res.send({ orders });
+    const lengths=await getLengthOforders(orders)
+    res.send({ orders,lengths});
   } catch (e) {
     res.status(500).send({ error: "Server is down!" });
   }
@@ -62,6 +66,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+
 router.patch("/:id", async (req, res) => {
   const { id } = req.params;
   if (!id) {
@@ -74,7 +79,7 @@ router.patch("/:id", async (req, res) => {
     }
     order.isCompleted = true;
     await order.save();
-    res.send({message:'Order is updated!'})
+    res.send({order})
   } catch (e) {
     res.status(500).send({ error: "Server is down!" });
   }
