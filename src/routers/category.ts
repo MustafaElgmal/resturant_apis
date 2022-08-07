@@ -18,6 +18,7 @@ router.post('/',async(req,res)=>{
         res.status(201).send({category:cate})
 
     }catch(e){
+        console.log(e)
         res.status(500).send({error:'Server is down!'})
     }
 })
