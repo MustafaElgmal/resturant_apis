@@ -97,8 +97,9 @@ export const itemValidation = async (item: itemType) => {
   return { message: "" };
 };
 export const orderVaildation = async (order: orderType) => {
-  const { userId, mobile, city, address, items } = order;
-  if (!userId) {
+  const { user, mobile, city, address, orderItems } = order;
+  console.log(order)
+  if (!user.id) {
     return { message: "UserId is required!" };
   }
   if (!mobile) {
@@ -110,22 +111,21 @@ export const orderVaildation = async (order: orderType) => {
   if (!address) {
     return { message: "address is required!" };
   }
-  if (items?.length === 0) {
+  if (orderItems.length === 0) {
     return { message: "Items is required!" };
   }
   return { message: "" };
 };
 
-export const createOrderItems = async (items: orderItemType[], order: orderType) => {
-  let message = "",
-    item;
-  const size = items.length;
+export const createOrderItems = async (orderItems: orderItemType[], order: orderType) => {
+  let message = "",item;
+  const size = orderItems.length;
   for (let i = 0; i < size; i++) {
-    item = items[i];
+    item = orderItems[i];
     if (item.Qty === undefined || item.Qty <= 0) {
       return { message: "Item Qty is required and should be positive number!" };
     }
-    const itemFind = await Item.findOne({ where: { id: item.itemId } });
+    const itemFind = await Item.findOne({ where: { id: item.item.id } });
     if (!itemFind) {
       return { message: "Item not found!" };
     }

@@ -1,34 +1,46 @@
 
 export interface userType{
-    firstName:string
-    lastName:string
-    email:string
-    password:string
-    type:string
+    id?: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    type: string;
+    imgUrl?: string;
+    dateOfBirth?: Date;
 }
 
 export interface categoryType{
+    id?:number,
     name:string
 }
 
 export interface itemType{
-    name:string,
-    description:string,
-    price:number,
-    popular:boolean
+    id?: number;
+  name: string;
+  description: string;
+  price: number;
+  imgUrl: string;
+  popular: boolean;
+  category: categoryType;
 }
 export interface orderItemType{
-    itemId:number,Qty:number
+    id?:number,
+    Qty:number,
+    item:itemType
+    
 }
 
 export interface orderType{
-    userId?:number,
-    user:userType,
-    mobile:string,
-    city:string,
-    address:string,
-    orderNo:string
-    items?:itemType[]
-    isCompleted:boolean
+    id?: number;
+    mobile: string;
+    city: string;
+    address: string;
+    user: userType;
+    orderItems:orderItemType[]
+    isCompleted?: boolean;
+    orderNo?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
