@@ -4,11 +4,11 @@ import cors from 'cors'
 import morgan from "morgan"
 import helmet from "helmet"
 import { json, urlencoded } from "express"
-import { connectionDB } from "./dp/conection"
-import userRouter from './routers/user'
-import categoryRouter from './routers/category'
-import itemRouter from './routers/item'
-import orderRouter from './routers/order'
+import { connectionDB } from "./db/connection"
+import userRouter from './routes/user'
+import categoryRouter from './routes/category'
+import itemRouter from './routes/item'
+import orderRouter from './routes/order'
 import { Request,Response } from "express"
 
 

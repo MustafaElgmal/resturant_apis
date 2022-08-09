@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Category } from "../entities/category";
 import { Item } from "../entities/item";
-import { itemValidation } from "../functions";
+import { itemValidation } from "../utils";
 
 const router = Router();
 
@@ -10,7 +10,7 @@ router.post("/:id", async (req, res) => {
     if(!id){
         return res.status(400).send({message:'CategoryId is required as paramters!'})
     }
-  const errors = await itemValidation(req.body);
+  const errors = itemValidation(req.body);
   if (errors.message !== "") {
     return res.status(400).send(errors);
   }
@@ -31,7 +31,7 @@ router.post("/:id", async (req, res) => {
     await item.save();
     res.status(201).send({ item});
   } catch (e) {
-    res.status(500).send({ error: "Server is down!" });
+    res.status(500).send({ error: "Server error!" });
   }
 });
 router.get("/", async (req, res) => {
@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
     res.send({ items });
   } catch (e) {
     console.log(e)
-    res.status(500).send({ error: "Server is down!" });
+    res.status(500).send({ error: "Server error!" });
   }
 });
 

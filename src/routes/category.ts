@@ -1,6 +1,6 @@
 import {Router} from 'express'
 import { Category } from '../entities/category'
-import { categoryValidation } from '../functions'
+import { categoryValidation } from '../utils'
 
 const router=Router()
 
@@ -19,7 +19,7 @@ router.post('/',async(req,res)=>{
 
     }catch(e){
         console.log(e)
-        res.status(500).send({error:'Server is down!'})
+        res.status(500).send({error:'Server error!'})
     }
 })
 
@@ -28,7 +28,7 @@ router.get('/',async(req,res)=>{
         const categories=await Category.find()
         res.send({categories})
     }catch(e){
-        res.status(500).send({error:'Server is down!'})
+        res.status(500).send({error:'Server error!'})
     }
 })
 

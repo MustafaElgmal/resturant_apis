@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { User } from "../entities/user";
-import { loginValidation, userValidation } from "../functions";
+import { loginValidation, userValidation } from "../utils";
 import bcrypt from 'bcrypt'
 
 const router = Router();
@@ -23,7 +23,7 @@ router.post("/", async (req, res) => {
     await user.save()
     res.status(201).send({user})
   } catch (e) {
-    res.status(500).send({ error: "Server is dwon!" });
+    res.status(500).send({ error: "Server error!" });
   }
 });
 
@@ -37,7 +37,7 @@ router.post('/login',async(req,res)=>{
         const user=await User.findOne({where:{email:email.toLowerCase()}})
         res.send({user})
     }catch(e){
-        res.status(500).send({error:'Server is down!'})
+        res.status(500).send({error:'Server error!'})
     }
 
 })
@@ -47,7 +47,7 @@ router.get('/',async(req,res)=>{
         res.send({users})
 
     }catch(e){
-        res.status(500).send({error:'Server is down!'})
+        res.status(500).send({error:'Server error!'})
     }
 })
 
@@ -65,7 +65,7 @@ router.get('/:id',async(req,res)=>{
         res.send({user})
 
     }catch(e){
-        res.status(500).send({error:'Server is down!'})
+        res.status(500).send({error:'Server error!'})
     }
 
 })
@@ -85,7 +85,7 @@ router.delete('/:id',async(req,res)=>{
         res.send({message:'User is deleted'})
 
     }catch(e){
-        res.status(500).send({error:'Server is down!'})
+        res.status(500).send({error:'Server error!'})
     }
 
 })

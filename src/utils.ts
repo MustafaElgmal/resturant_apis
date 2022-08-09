@@ -20,7 +20,7 @@ export const userValidation = async (user: userType) => {
   if (!validator.isEmail(email)) {
     return { message: "Email is not vaild!" };
   }
-  const userFind = await User.findOneBy({ email:email.toLocaleLowerCase() });
+  const userFind = await User.findOneBy({ email: email.toLocaleLowerCase() });
   if (userFind) {
     return { message: "Email is already exists!" };
   }
@@ -51,7 +51,7 @@ export const loginValidation = async (user: userType) => {
   if (!email) {
     return { message: "Email is required!" };
   }
-  const userFind = await User.findOneBy({ email:email.toLocaleLowerCase() });
+  const userFind = await User.findOneBy({ email: email.toLocaleLowerCase() });
   if (!userFind) {
     return { message: "Email is not vaild!" };
   }
@@ -77,7 +77,7 @@ export const categoryValidation = async (cate: { name: string }) => {
   return { message: "" };
 };
 
-export const itemValidation = async (item: itemType) => {
+export const itemValidation =(item: itemType) => {
   const { name, description, price, popular } = item;
   if (!name) {
     return { message: "ItemName is required!" };
@@ -96,9 +96,8 @@ export const itemValidation = async (item: itemType) => {
   }
   return { message: "" };
 };
-export const orderVaildation = async (order: orderType) => {
+export const orderVaildation =(order: orderType) => {
   const { user, mobile, city, address, orderItems } = order;
-  console.log(order)
   if (!user.id) {
     return { message: "UserId is required!" };
   }
@@ -117,8 +116,12 @@ export const orderVaildation = async (order: orderType) => {
   return { message: "" };
 };
 
-export const createOrderItems = async (orderItems: orderItemType[], order: orderType) => {
-  let message = "",item;
+export const createOrderItems = async (
+  orderItems: orderItemType[],
+  order: orderType
+) => {
+  let message = "",
+    item;
   const size = orderItems.length;
   for (let i = 0; i < size; i++) {
     item = orderItems[i];
@@ -139,24 +142,22 @@ export const createOrderItems = async (orderItems: orderItemType[], order: order
   return { message: "" };
 };
 
-export const generationCode = async () => {
+export const generationCode =() => {
   const min = 100000;
   const max = 1000000;
   const code = Math.floor(Math.random() * (max - min + 1)) + min;
   return `R-${code}`;
 };
 
-export const getLengthOforders=async(orders:orderType[])=>{
-  let size=0
-   orders.forEach((order)=>{
-    if(!order.isCompleted){
-      size+=1
+export const getLengthOforders =(orders: orderType[]) => {
+  let size = 0;
+  orders.forEach((order) => {
+    if (!order.isCompleted) {
+      size += 1;
     }
-  })
-  return{
-    pendingOrdersLength:size,
-    completedOrdersLength:orders.length-size
-  }
-
-}
-
+  });
+  return {
+    pendingOrdersLength: size,
+    completedOrdersLength: orders.length - size,
+  };
+};
