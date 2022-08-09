@@ -9,6 +9,7 @@ import userRouter from './routers/user'
 import categoryRouter from './routers/category'
 import itemRouter from './routers/item'
 import orderRouter from './routers/order'
+import { Request,Response } from "express"
 
 
 const app=express()
@@ -23,7 +24,9 @@ app.use('/categories',categoryRouter)
 app.use('/items',itemRouter)
 app.use('/orders',orderRouter)
 
-
+app.use('*',async(req:Request,res:Response)=>{
+    res.send({error:'Api not found'})
+})
 const port=process.env.PORT||5000
 app.listen(port,()=>{
     connectionDB()

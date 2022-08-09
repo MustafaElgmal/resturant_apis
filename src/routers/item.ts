@@ -34,7 +34,6 @@ router.post("/:id", async (req, res) => {
     res.status(500).send({ error: "Server is down!" });
   }
 });
-
 router.get("/", async (req, res) => {
   try {
     const items = await Item.find({relations:{category:true}});

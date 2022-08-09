@@ -20,7 +20,7 @@ export const userValidation = async (user: userType) => {
   if (!validator.isEmail(email)) {
     return { message: "Email is not vaild!" };
   }
-  const userFind = await User.findOneBy({ email });
+  const userFind = await User.findOneBy({ email:email.toLocaleLowerCase() });
   if (userFind) {
     return { message: "Email is already exists!" };
   }
@@ -51,7 +51,7 @@ export const loginValidation = async (user: userType) => {
   if (!email) {
     return { message: "Email is required!" };
   }
-  const userFind = await User.findOneBy({ email });
+  const userFind = await User.findOneBy({ email:email.toLocaleLowerCase() });
   if (!userFind) {
     return { message: "Email is not vaild!" };
   }

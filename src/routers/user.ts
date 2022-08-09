@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
     const user = User.create({
       firstName,
       lastName,
-      email,
+      email:email.toLowerCase(),
       password,
       type
     });
@@ -33,7 +33,8 @@ router.post('/login',async(req,res)=>{
         return res.status(400).send(errors)
     }
     try{
-        const user=await User.findOneBy({email:req.body.email})
+        const {email}=req.body
+        const user=await User.findOne({where:{email:email.toLowerCase()}})
         res.send({user})
     }catch(e){
         res.status(500).send({error:'Server is down!'})
