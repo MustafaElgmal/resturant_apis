@@ -1,24 +1,33 @@
+import { itemCreate, RequestAuthType } from "./../types";
 import { Router } from "express";
 import { Category } from "../entities/category";
 import { Item } from "../entities/item";
-import { itemValidation } from "../utils";
+import { auth } from "../middlewares/auth";
+import { itemValidation } from "../utils/validations";
 
 const router = Router();
 
-router.post("/:id", async (req, res) => {
-    const {id}=req.params
-    if(!id){
-        return res.status(400).send({message:'CategoryId is required as paramters!'})
-    }
-  const errors = itemValidation(req.body);
-  if (errors.message !== "") {
-    return res.status(400).send(errors);
+router.post("/:id", auth, async (req: RequestAuthType, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res
+      .status(400)
+      .json({ message: "CategoryId is required as paramters!" });
+  }
+  if (req.user?.type !== "admin") {
+    return res
+      .status(400)
+      .json({ messgae: "you should be admin to create Item!" });
+  }
+  const error = itemValidation(req.body);
+  if (error.message !== "") {
+    return res.status(400).json(error);
   }
   try {
-    const { name, description, price, popular ,imgUrl} = req.body;
-    const cate=await Category.findOneBy({id:+id})
-    if(!cate){
-        return res.status(404).send({message:'Category is not found!'})
+    const { name, description, price, popular, imgUrl }: itemCreate = req.body;
+    const category = await Category.findOneBy({ id: +id });
+    if (!category) {
+      return res.status(404).json({ message: "Category is not found!" });
     }
     const item = Item.create({
       name,
@@ -26,21 +35,20 @@ router.post("/:id", async (req, res) => {
       price,
       popular,
       imgUrl,
-      category:cate
+      category,
     });
     await item.save();
-    res.status(201).send({ item});
+    res.status(201).json({ item });
   } catch (e) {
-    res.status(500).send({ error: "Server error!" });
+    res.status(500).json({ error: "Server error!" });
   }
 });
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
   try {
-    const items = await Item.find({relations:{category:true}});
-    res.send({ items });
+    const items = await Item.find({ relations: { category: true } });
+    res.json({ items });
   } catch (e) {
-    console.log(e)
-    res.status(500).send({ error: "Server error!" });
+    res.status(500).json({ error: "Server error!" });
   }
 });
 

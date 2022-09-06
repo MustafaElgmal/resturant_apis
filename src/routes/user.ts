@@ -1,17 +1,20 @@
+import { userCreate, RequestAuthType } from './../types';
+import { generateAuth } from './../utils/functions';
 import { Router } from "express";
 import { User } from "../entities/user";
-import { loginValidation, userValidation } from "../utils";
+import { loginValidation, userValidation } from "../utils/validations";
 import bcrypt from 'bcrypt'
+import { auth } from '../middlewares/auth';
 
 const router = Router();
 
 router.post("/", async (req, res) => {
-  const errors = await userValidation(req.body);
-  if (errors.message !== "") {
-    return res.status(400).send(errors);
+  const error = await userValidation(req.body);
+  if (error.message !== "") {
+    return res.status(400).json(error);
   }
   try {
-    let { firstName, lastName, email, password, type } = req.body;
+    let { firstName, lastName, email, password, type }:userCreate = req.body;
     password=await bcrypt.hash(password,8)
     const user = User.create({
       firstName,
@@ -21,73 +24,46 @@ router.post("/", async (req, res) => {
       type
     });
     await user.save()
-    res.status(201).send({user})
+    const token=generateAuth(user.email)
+    res.status(201).json({token,type:user.type})
   } catch (e) {
-    res.status(500).send({ error: "Server error!" });
+    res.status(500).json({ error: "Server error!" });
   }
 });
 
-router.post('/login',async(req,res)=>{
-    const errors=await loginValidation(req.body)
-    if(errors.message!==''){
-        return res.status(400).send(errors)
+router.post('/signin',async(req,res)=>{
+    const error=await loginValidation(req.body)
+    if(error.message!==''){
+        return res.status(400).json(error)
     }
     try{
-        const {email}=req.body
-        const user=await User.findOne({where:{email:email.toLowerCase()}})
-        res.send({user})
+        const {email}:{email:string}=req.body
+        const user=await User.findOne({where:{email}})
+        const token=generateAuth(email)
+        res.status(200).json({token,type:user?.type})
     }catch(e){
-        res.status(500).send({error:'Server error!'})
+        res.status(500).json({error:'Server error!'})
     }
-
 })
-router.get('/',async(req,res)=>{
+
+router.get('/',auth,async(req:RequestAuthType,res)=>{
+    if (req.user?.type !== "admin") {
+        return res
+          .status(400)
+          .json({ messgae: "you should be admin get users!" });
+      }
     try{
         const users=await User.find()
-        res.send({users})
+        res.json({users})
 
     }catch(e){
-        res.status(500).send({error:'Server error!'})
+        res.status(500).json({error:'Server error!'})
     }
 })
 
-router.get('/:id',async(req,res)=>{
-    const {id}=req.params
-    if(!id){
-        return res.status(400).send({message:'UserId is required as paramter!'})
-    }
-    try{
-        const user=await User.findOneBy({id:+id})
-        if(!user){
-            return res.status(404).send({message:'User is not found!'})
-            
-        }
-        res.send({user})
-
-    }catch(e){
-        res.status(500).send({error:'Server error!'})
-    }
-
-})
-
-router.delete('/:id',async(req,res)=>{
-    const {id}=req.params
-    if(!id){
-        return res.status(400).send({message:'UserId is required as paramter!'})
-    }
-    try{
-        const user=await User.findOneBy({id:+id})
-        if(!user){
-            return res.status(404).send({message:'User is not found!'})
-            
-        }
-        await User.delete({id:+id})
-        res.send({message:'User is deleted'})
-
-    }catch(e){
-        res.status(500).send({error:'Server error!'})
-    }
-
+router.get('/profile',auth,async(req:RequestAuthType,res)=>{
+    const user=req.user!
+    res.json({user})
 })
 
 

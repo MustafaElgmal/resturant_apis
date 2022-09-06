@@ -1,12 +1,12 @@
-import { itemType, orderItemType, orderType, userType } from "./types";
+import { userCreate, itemCreate, orderCreate } from './../types';
 import validator from "validator";
-import { User } from "./entities/user";
+import { User } from "../entities/user";
 import bcrypt from "bcrypt";
-import { Category } from "./entities/category";
-import { Item } from "./entities/item";
-import { OrderItem } from "./entities/orderItem";
+import { Category } from "../entities/category";
+import { Item } from "../entities/item";
+import { OrderItem } from "../entities/orderItem";
 
-export const userValidation = async (user: userType) => {
+export const userValidation = async (user:userCreate) => {
   const { firstName, lastName, email, password, type } = user;
   if (!firstName) {
     return { message: "FirstName is required!" };
@@ -46,7 +46,7 @@ export const userValidation = async (user: userType) => {
   return { message: "" };
 };
 
-export const loginValidation = async (user: userType) => {
+export const loginValidation = async (user:{email:string,password:string}) => {
   const { email, password } = user;
   if (!email) {
     return { message: "Email is required!" };
@@ -65,20 +65,20 @@ export const loginValidation = async (user: userType) => {
   return { message: "" };
 };
 
-export const categoryValidation = async (cate: { name: string }) => {
-  const { name } = cate;
+export const categoryValidation = async (category: { name: string }) => {
+  const { name } = category;
   if (!name) {
     return { message: "CategoryName is required!" };
   }
-  const category = await Category.findOneBy({ name });
-  if (category) {
+  const categoryFind = await Category.findOneBy({ name });
+  if (categoryFind) {
     return { message: "CategoryName is already exists!" };
   }
   return { message: "" };
 };
 
-export const itemValidation =(item: itemType) => {
-  const { name, description, price, popular } = item;
+export const itemValidation =(item: itemCreate) => {
+  const { name, description, price, popular,imgUrl } = item;
   if (!name) {
     return { message: "ItemName is required!" };
   }
@@ -94,13 +94,15 @@ export const itemValidation =(item: itemType) => {
   if (popular !== true && popular !== false) {
     return { message: "Popular should be bool!" };
   }
+  if(imgUrl){
+    if(!validator.isURL(imgUrl)){
+      return { message: "ImagaUrl should be url!" };
+    }
+  }
   return { message: "" };
 };
-export const orderVaildation =(order: orderType) => {
-  const { user, mobile, city, address, orderItems } = order;
-  if (!user.id) {
-    return { message: "UserId is required!" };
-  }
+export const orderVaildation =(order: orderCreate) => {
+  const {  mobile, city, address, orderItems } = order;
   if (!mobile) {
     return { message: "mobile is required!" };
   }
@@ -110,54 +112,11 @@ export const orderVaildation =(order: orderType) => {
   if (!address) {
     return { message: "address is required!" };
   }
-  if (orderItems.length === 0) {
+  if (orderItems===undefined||orderItems.length === 0) {
     return { message: "Items is required!" };
   }
   return { message: "" };
 };
 
-export const createOrderItems = async (
-  orderItems: orderItemType[],
-  order: orderType
-) => {
-  let message = "",
-    item;
-  const size = orderItems.length;
-  for (let i = 0; i < size; i++) {
-    item = orderItems[i];
-    if (item.Qty === undefined || item.Qty <= 0) {
-      return { message: "Item Qty is required and should be positive number!" };
-    }
-    const itemFind = await Item.findOne({ where: { id: item.item.id } });
-    if (!itemFind) {
-      return { message: "Item not found!" };
-    }
-    const orderItem = OrderItem.create({
-      Qty: item.Qty,
-      order,
-      item: itemFind,
-    });
-    await orderItem.save();
-  }
-  return { message: "" };
-};
 
-export const generationCode =() => {
-  const min = 100000;
-  const max = 1000000;
-  const code = Math.floor(Math.random() * (max - min + 1)) + min;
-  return `R-${code}`;
-};
 
-export const getLengthOforders =(orders: orderType[]) => {
-  let size = 0;
-  orders.forEach((order) => {
-    if (!order.isCompleted) {
-      size += 1;
-    }
-  });
-  return {
-    pendingOrdersLength: size,
-    completedOrdersLength: orders.length - size,
-  };
-};

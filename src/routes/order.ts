@@ -1,37 +1,30 @@
+import { orderCreate, RequestAuthType } from "./../types";
 import { Router } from "express";
-import { Item } from "../entities/item";
 import { Order } from "../entities/order";
-import { OrderItem } from "../entities/orderItem";
-import { User } from "../entities/user";
+import { auth } from "../middlewares/auth";
+import { orderVaildation } from "../utils/validations";
 import {
   createOrderItems,
   generationCode,
   getLengthOforders,
-  orderVaildation,
-} from "../utils";
-import { itemType, orderItemType } from "../types";
+} from "../utils/functions";
 const router = Router();
 
-router.post("/", async (req, res) => {
-  let errors =orderVaildation(req.body);
-  if (errors.message !== "") {
-    return res.status(400).json(errors);
+router.post("/", auth, async (req: RequestAuthType, res) => {
+  let error = orderVaildation(req.body);
+  if (error.message !== "") {
+    return res.status(400).json(error);
   }
   try {
-    const { user, mobile, city, address, orderItems } = req.body;
-    const userFind = await User.findOne({ where: { id: user.id } });
-    if (!userFind) {
-      return res.status(404).json({ message: "User not found!" });
-    }
-
-    const orderNo =generationCode();
+    const { mobile, city, address, orderItems }: orderCreate = req.body;
+    const user = req.user!;
+    const orderNo: string = generationCode();
     const order = Order.create({ user, mobile, city, address, orderNo });
     await order.save();
-    errors = await createOrderItems(orderItems, order);
-    console.log(errors);
-    if (errors.message !== "") {
+    error = await createOrderItems(orderItems, order);
+    if (error.message !== "") {
       await Order.delete({ id: order.id });
-      return res.status(400).json(errors);
+      return res.status(400).json(error);
     }
 
     res.status(201).json({ order });
@@ -40,7 +33,13 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req: RequestAuthType, res) => {
+  if (req.user?.type === "user") {
+    return res
+      .status(400)
+      .json({ messgae: "you should be admin or employee to get orders!" });
+  }
+
   try {
     const orders = await Order.find({
       relations: { user: true, orderItems: { item: true } },
@@ -52,10 +51,15 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", auth, async (req: RequestAuthType, res) => {
   const { id } = req.params;
   if (!id) {
     return res.status(400).json({ message: "OrderId is required as params!" });
+  }
+  if (req.user?.type === "user") {
+    return res
+      .status(400)
+      .json({ messgae: "you should be admin or employee to get order!" });
   }
   try {
     const order = await Order.findOne({
@@ -71,10 +75,15 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", async (req: RequestAuthType, res) => {
   const { id } = req.params;
   if (!id) {
     return res.status(400).json({ message: "OrderId is required as params!" });
+  }
+  if (req.user?.type === "user") {
+    return res
+      .status(400)
+      .json({ messgae: "you should be admin or employee to update on order!" });
   }
   try {
     const order = await Order.findOne({ where: { id: +id } });
