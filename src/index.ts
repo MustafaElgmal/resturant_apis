@@ -1,4 +1,4 @@
-const express=require('express')
+import express from 'express'
 import { config } from "dotenv"
 import cors from 'cors'
 import morgan from "morgan"
